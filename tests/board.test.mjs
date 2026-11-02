@@ -59,8 +59,8 @@ test("dismissed jobs sit in Closed and stay put when dropped there", () => {
 });
 
 test("statuses read in sentence case on screen", () => {
-  assert.equal(statusLabel("Needs Manual Apply"), "Apply yourself");
-  assert.equal(statusLabel("Awaiting Your Approval"), "Awaiting approval");
+  assert.equal(statusLabel("Needs Manual Apply"), "Good match");
+  assert.equal(statusLabel("Awaiting Your Approval"), "Potential match");
   assert.equal(statusLabel("Interview"), "Interview");
   assert.equal(statusLabel(""), "");
 });

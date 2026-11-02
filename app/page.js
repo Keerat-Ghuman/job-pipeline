@@ -44,12 +44,12 @@ const TABS = [
   { key: "favourites", label: "★ Favourites", match: (s, job) => isFavourite(job) },
   {
     key: "awaiting",
-    label: "Awaiting approval",
+    label: "Potential matches",
     match: (s) => s === "Awaiting Your Approval",
   },
   {
     key: "manual",
-    label: "Apply yourself",
+    label: "Good matches",
     match: (s) => s === "Needs Manual Apply",
   },
   { key: "applied", label: "Applied", match: (s) => s.startsWith("Applied") },
@@ -298,7 +298,9 @@ export default function Dashboard() {
     ) {
       return;
     }
-    const data = await updateStatus(job._row, "Approved");
+    // With no application email there is nothing to send, so approving just
+    // moves the job into Good matches for the person to apply to.
+    const data = await updateStatus(job._row, email ? "Approved" : "Needs Manual Apply");
     if (email && data && data.sent === false) {
       window.alert(
         "The email didn't send. The job stays Approved and the next run tries again. Check the email settings in .env.local.",
@@ -489,7 +491,7 @@ export default function Dashboard() {
                         disabled={busyRow === job._row}
                         onClick={() => approve(job)}
                       >
-                        {applyEmail ? "Email application" : "Approve"}
+                        {applyEmail ? "Email application" : "Move to good matches"}
                       </button>
                       <button
                         className="actionBtn"

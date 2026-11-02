@@ -11,7 +11,8 @@ Use one word per idea, everywhere.
 | --- | --- |
 | resume | CV |
 | search (Search now, Last searched, the next search) | fetch, scrape, run |
-| Apply yourself (you apply on the company's site) | Needs manual apply |
+| Good matches (strong fits you apply to on the company's site) | Apply yourself, Needs manual apply |
+| Potential matches (worth a look, then keep or dismiss) | Awaiting approval |
 | Dismiss / Dismissed (you passed on it) | Rejected |
 | Rejected (the company turned you down) | Dismissed |
 | Not eligible (the app hid it, with the reason) | Filtered, blocked |
