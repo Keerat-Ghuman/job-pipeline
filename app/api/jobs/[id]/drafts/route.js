@@ -4,7 +4,8 @@
 import { NextResponse } from "next/server";
 import { readJson, writeJson } from "../../../../../lib/store.js";
 
-export async function PUT(request, { params }) {
+export async function PUT(request, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     const body = await request.json();
     const current = readJson(`drafts/${params.id}`, {});

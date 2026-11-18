@@ -27,7 +27,8 @@ async function fromBaseLetter(ctx) {
   return fillBaseLetter(base, { company: ctx.row.Company, role: ctx.row["Role Title"], why, summary, name });
 }
 
-export async function POST(request, { params }) {
+export async function POST(request, { params: pendingParams }) {
+  const params = await pendingParams;
   const { kind } = await request.json().catch(() => ({}));
   if (!PROMPTS[kind]) return NextResponse.json({ ok: false, code: "BAD_KIND", error: "kind must be cover or why" }, { status: 400 });
   const result = await aiRoute(async () => {

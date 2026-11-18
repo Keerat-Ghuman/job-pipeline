@@ -18,7 +18,8 @@ export const maxDuration = 30;
 const SETTABLE = new Set([STATUS.APPLIED, STATUS.INTERVIEW, STATUS.OFFER, STATUS.REJECTED]);
 const fail = (error, status = 500) => NextResponse.json({ success: false, error }, { status });
 
-export async function GET(_req, { params }) {
+export async function GET(_req, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     const ctx = await loadContext(params.id);
     if (!ctx) return fail("Job not found", 404);
@@ -44,7 +45,8 @@ export async function GET(_req, { params }) {
   }
 }
 
-export async function POST(request, { params }) {
+export async function POST(request, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     const { status } = await request.json();
     if (!SETTABLE.has(status)) return fail(`status must be one of: ${[...SETTABLE].join(", ")}`, 400);

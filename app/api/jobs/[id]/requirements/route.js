@@ -11,11 +11,13 @@ import { readJson, writeJson } from "../../../../../lib/store.js";
 
 export const maxDuration = 60;
 
-export async function GET(_request, { params }) {
+export async function GET(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   return NextResponse.json({ ok: true, check: readJson(`requirements/${params.id}`) });
 }
 
-export async function POST(_request, { params }) {
+export async function POST(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   const result = await aiRoute(async () => {
     const ctx = await loadContext(params.id);
     if (!ctx) throw Object.assign(new Error("Job not found"), { code: "NOT_FOUND" });

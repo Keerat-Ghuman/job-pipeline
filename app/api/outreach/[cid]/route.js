@@ -4,7 +4,8 @@
 import { NextResponse } from "next/server";
 import { updateContact, deleteContact } from "../../../../lib/outreach.js";
 
-export async function PATCH(request, { params }) {
+export async function PATCH(request, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     const contact = updateContact(params.cid, await request.json());
     if (!contact) return NextResponse.json({ success: false, error: "Contact not found" }, { status: 404 });
@@ -14,7 +15,8 @@ export async function PATCH(request, { params }) {
   }
 }
 
-export async function DELETE(_req, { params }) {
+export async function DELETE(_req, { params: pendingParams }) {
+  const params = await pendingParams;
   const ok = deleteContact(params.cid);
   return NextResponse.json({ success: ok, ...(ok ? {} : { error: "Contact not found" }) }, { status: ok ? 200 : 404 });
 }

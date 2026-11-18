@@ -20,7 +20,8 @@ const ok = (body) => NextResponse.json({ success: true, ...body });
 const fail = (err) =>
   NextResponse.json({ success: false, code: err.code || "ERROR", error: err.message }, { status: STATUS_FOR[err.code] || (err.code ? 400 : 500) });
 
-export async function GET(_req, { params }) {
+export async function GET(_req, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     if (process.env.VERCEL) return ok({ available: false, reason: LOCAL_ONLY, site: null, application: null });
     const row = await findJob(params.id);
@@ -32,7 +33,8 @@ export async function GET(_req, { params }) {
   }
 }
 
-export async function POST(request, { params }) {
+export async function POST(request, { params: pendingParams }) {
+  const params = await pendingParams;
   try {
     if (process.env.VERCEL) return fail({ code: "LOCAL_ONLY", message: LOCAL_ONLY });
     if (!sameOrigin(request.headers)) return fail({ code: "NOT_SAME_ORIGIN", message: "Do this from the dashboard page." });

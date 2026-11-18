@@ -6,13 +6,15 @@ import { deleteVersion, getVersion, listVersions } from "../../../../../lib/resu
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_request, { params }) {
+export async function GET(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   const version = getVersion(params.id);
   if (!version) return NextResponse.json({ success: false, error: "No such version." }, { status: 404 });
   return NextResponse.json({ success: true, version });
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   deleteVersion(params.id);
   return NextResponse.json({ success: true, versions: listVersions() });
 }

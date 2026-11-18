@@ -11,12 +11,14 @@ export const dynamic = "force-dynamic";
 
 const badKey = () => NextResponse.json({ success: false, error: "Bad draft key." }, { status: 400 });
 
-export async function GET(_request, { params }) {
+export async function GET(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   if (!isDraftKey(params.key)) return badKey();
   return NextResponse.json({ success: true, draft: getDraft(params.key) });
 }
 
-export async function PUT(request, { params }) {
+export async function PUT(request, { params: pendingParams }) {
+  const params = await pendingParams;
   if (!isDraftKey(params.key)) return badKey();
   const body = await request.json().catch(() => ({}));
   if (!isResume(body.resume)) return NextResponse.json({ success: false, error: "That isn't a resume." }, { status: 400 });
@@ -24,7 +26,8 @@ export async function PUT(request, { params }) {
   return NextResponse.json({ success: true, savedAt });
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(_request, { params: pendingParams }) {
+  const params = await pendingParams;
   if (!isDraftKey(params.key)) return badKey();
   deleteDraft(params.key);
   return NextResponse.json({ success: true });

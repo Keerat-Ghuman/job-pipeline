@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkEligibility, eligibilityCell, yearsAsked, graduationYears } from "../lib/eligibility.js";
-import { eligibilityChanges } from "../lib/eligibilityRun.js";
+import { checkListingEligibility, eligibilityChanges } from "../lib/eligibilityRun.js";
 
 const canadian = {
   workIn: ["Canada"],
@@ -48,6 +48,61 @@ test("a US job that says nothing about visas is fine, with a quiet note", () => 
 test("jobs open to Canada are not affected by US rules", () => {
   assert.equal(checkEligibility(job("Analyst", { location: "Toronto, ON or New York, NY" }), canadian).verdict, "ok");
   assert.equal(checkEligibility(job("Analyst", { location: "Remote" }), canadian).verdict, "ok");
+});
+
+const strictSponsorship = { workIn: ["Canada"], requireUsSponsorship: true };
+
+test("strict US filtering requires an offer in the job description", () => {
+  for (const [location, description] of [
+    ["United States", "Visa sponsorship is available for this role."],
+    ["Remote (US)", "We will sponsor work visas for this position."],
+    ["Detroit, Michigan", "<p>Entry-level software developer.</p><p>We provide visa sponsorship.</p>"],
+  ]) {
+    const result = checkListingEligibility(job("Software Engineer", { location, description }), strictSponsorship);
+    assert.equal(result.verdict, "ok", description);
+    assert.match(eligibilityCell(result), /explicitly offers US visa sponsorship/);
+  }
+});
+
+test("strict US filtering rejects unknown, negative, conditional and irrelevant statements", () => {
+  for (const description of [
+    "",
+    "We do not sponsor. Visa sponsorship is available for this role.",
+    "Applicants must already be authorized to work in the US. Visa sponsorship is available.",
+    "Candidates must be authorized to work now and in the future. We sponsor visas.",
+    "Visa sponsorship is available for our Canada roles.",
+    "Visa sponsorship is available in the United Kingdom.",
+    "We sponsored work visas in the past.",
+    "We may provide visa sponsorship.",
+    "Candidates are responsible for their own work visa. Visa sponsorship is available.",
+    "Visa sponsorship is available?",
+    "Must be a U.S. citizen. Visa sponsorship is available.",
+  ]) {
+    const result = checkListingEligibility(job("Software Engineer", {
+      location: "US", description, sponsorship: "Offers Sponsorship",
+    }), strictSponsorship);
+    assert.equal(result.verdict, "no", description);
+  }
+});
+
+test("strict filtering permits Canada and worldwide access, and checks ambiguous locations", () => {
+  for (const location of ["Toronto, ON", "Toronto, ON or Seattle, WA", "Remote - Canada", "Worldwide"]) {
+    assert.equal(checkListingEligibility(job("Developer", { location }), strictSponsorship).verdict, "ok", location);
+  }
+  for (const location of ["", "Remote", "Ontario, CA", "Remote - US", "Detroit, Michigan"]) {
+    assert.equal(checkListingEligibility(job("Developer", { location }), strictSponsorship).verdict, "no", location);
+  }
+  assert.equal(checkListingEligibility(job("Developer", {
+    location: "Worldwide", description: "You must reside in the United States.",
+  }), strictSponsorship).verdict, "no");
+});
+
+test("rechecking saved listings hides an already listed US job without explicit sponsorship", () => {
+  const link = "https://example.com/us-job";
+  const { statuses } = eligibilityChanges([
+    { _row: 2, Link: link, "Country/Remote": "US", Status: "Awaiting Your Approval" },
+  ], { postingFor: () => ({ sponsorship: "Offers Sponsorship" }), facts: strictSponsorship });
+  assert.equal(statuses[0].status, "Not Eligible");
 });
 
 test("internships after graduation are out; ones around it are a check", () => {

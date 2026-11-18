@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import s from "../jobs.module.css";
 import Writing from "./Writing.js";
 import Outreach from "./Outreach.js";
@@ -39,8 +40,8 @@ function Row({ label, value }) {
   );
 }
 
-export default function JobPage({ params }) {
-  const { id } = params;
+export default function JobPage() {
+  const { id } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [asking, setAsking] = useState(false);

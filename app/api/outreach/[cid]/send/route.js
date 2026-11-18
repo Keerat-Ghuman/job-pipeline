@@ -8,7 +8,8 @@ import { sendContact } from "../../../../../lib/outreach.js";
 
 export const maxDuration = 30;
 
-export async function POST(request, { params }) {
+export async function POST(request, { params: pendingParams }) {
+  const params = await pendingParams;
   const input = await request.json().catch(() => ({}));
   const result = await sendContact({
     id: params.cid,

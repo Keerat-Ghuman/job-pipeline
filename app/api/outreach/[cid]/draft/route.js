@@ -10,7 +10,8 @@ import { SYSTEM, outreachEmailPrompt, linkedinNotePrompt, followUpPrompt, parseE
 
 export const maxDuration = 60;
 
-export async function POST(request, { params }) {
+export async function POST(request, { params: pendingParams }) {
+  const params = await pendingParams;
   const { kind } = await request.json().catch(() => ({}));
   if (!["email", "note", "followup"].includes(kind)) {
     return NextResponse.json({ ok: false, code: "BAD_KIND", error: "kind must be email, note or followup" }, { status: 400 });
