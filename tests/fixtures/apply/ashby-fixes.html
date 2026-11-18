@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Fixes form (Ashby-style test form)</title>
+<style>.opt{padding:4px 8px}.opt._active_x1{background:#cde}#lb div{padding:4px}</style></head>
+<body>
+<div id="root">
+  <h1>Analyst</h1>
+  <form onsubmit="return false">
+    <div><label for="_systemfield_name">Name *</label><input id="_systemfield_name" name="_systemfield_name" required></div>
+    <div class="entry">
+      <label for="yn-hidden">Are you open to working in person? *</label>
+      <div class="yn">
+        <button type="button" class="opt _option_x1">Yes</button>
+        <button type="button" class="opt _option_x1">No</button>
+        <input type="checkbox" id="yn-hidden" name="yn" style="display:none">
+      </div>
+    </div>
+    <div><label for="school">School *</label>
+      <input id="school" name="school" role="combobox" aria-controls="lb" aria-autocomplete="list" autocomplete="off" required>
+      <div id="lb" role="listbox"></div></div>
+    <div><label for="sm">Start month</label>
+      <select id="sm" name="sm"><option value="">Month</option><option value="1">Jan</option><option value="9">Sep</option><option value="12">Dec</option></select></div>
+    <div><label for="sy">Start year</label>
+      <select id="sy" name="sy"><option value="">Year</option><option value="2022">2022</option><option value="2023">2023</option></select></div>
+    <div><label for="sal">Salary expectation *</label><input id="sal" name="sal" type="number" required></div>
+    <button type="button" id="submit">Submit Application</button>
+  </form>
+</div>
+<script>
+document.querySelectorAll(".yn .opt").forEach(function (b) {
+  b.addEventListener("click", function () {
+    b.parentNode.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("_active_x1"); });
+    b.classList.add("_active_x1");
+  });
+});
+var SCHOOLS = ["Western University", "University of Toronto", "Western Sydney University"];
+var school = document.getElementById("school"), lb = document.getElementById("lb");
+school.addEventListener("input", function () {
+  var q = school.value.toLowerCase();
+  setTimeout(function () {
+    lb.innerHTML = "";
+    if (!q) return;
+    SCHOOLS.filter(function (s) { return s.toLowerCase().indexOf(q) >= 0; }).forEach(function (s) {
+      var d = document.createElement("div");
+      d.setAttribute("role", "option"); d.textContent = s;
+      d.addEventListener("mousedown", function () { school.value = s; lb.innerHTML = ""; });
+      lb.appendChild(d);
+    });
+  }, 200);
+});
+</script>
+</body>
+</html>

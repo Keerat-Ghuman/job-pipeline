@@ -57,9 +57,25 @@
 .count { color: var(--color-text-faint); font-weight: 400; }
 .listRow { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); padding: var(--space-3) 0; border-top: 1px solid var(--color-border); }
 
+.applyRows { display: flex; flex-direction: column; margin-top: var(--space-3); }
+.applyRow { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(0, 2fr) minmax(120px, 160px); gap: var(--space-1) var(--space-3); align-items: start; padding: var(--space-3) 0; border-top: 1px solid var(--color-border); font-size: var(--text-sm); }
+.applyRow:first-child { border-top: none; }
+.applyLabel { overflow-wrap: anywhere; }
+.applyValue { overflow-wrap: anywhere; padding: var(--space-2) 0; }
+.applySource { color: var(--color-text-muted); font-size: var(--text-xs); padding-top: var(--space-2); }
+.applyNote { display: block; margin-top: var(--space-1); }
+.applyProblem { grid-column: 1 / -1; margin: 0; }
+.applyActions { margin-top: var(--space-4); }
+
 @media (max-width: 600px) {
   .wrap { padding: var(--space-6) var(--space-4) var(--space-12); }
   .kv { grid-template-columns: 1fr auto; }
   .kv > span:nth-child(3n+1) { grid-column: 1 / -1; font-size: var(--text-xs); margin-top: var(--space-2); }
   .form { grid-template-columns: 1fr; }
+  .applyRow { grid-template-columns: 1fr; }
+  .applySource, .applyValue { padding-top: 0; }
+  .applyRow .input, .applyRow .select, .applyRow .textarea { min-height: 44px; font-size: 16px; }
+  .applyRow .textarea { min-height: 110px; }
+  .applyActions > button, .prompt > button { min-height: 44px; flex: 1 1 140px; }
+  .prompt > span { flex: 1 1 100%; }
 }

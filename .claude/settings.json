@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm test *)",
+      "Bash(npm run build)",
+      "Bash(npm run doctor)",
+      "Bash(npm run doctor *)",
+      "Bash(./scripts/check-fresh.sh)",
+      "Bash(./scripts/sync.sh --no-publish *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git merge *)",
+      "Bash(launchctl print *)",
+      "Bash(launchctl kickstart -k gui/*/com.jobpipeline.dashboard)",
+      "mcp__terminal__read_terminal",
+      "mcp__Claude_Browser__tabs_context",
+      "mcp__Claude_Browser__find",
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__get_page_text",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__preview_list",
+      "Bash(node .claude/hooks/until-ready.mjs *)",
+      "Bash(.claude/hooks/worktree.sh *)",
+      "Bash(git push -u origin task/*)",
+      "Bash(gh pr create *)",
+      "Bash(~/.local/bin/gh pr create *)",
+      "Bash(git worktree list)",
+      "Bash(node scripts/qa-ui.mjs *)",
+      "Bash(NEXT_DIST_DIR=.next-gate npm run build)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/qa-gate.mjs\"",
+            "timeout": 1800
+          }
+        ]
+      }
+    ]
+  }
+}

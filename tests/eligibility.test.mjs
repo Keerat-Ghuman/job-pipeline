@@ -76,6 +76,91 @@ test("graduate degrees, years, languages and certifications", () => {
   assert.equal(checkEligibility(job("Associate", { description: "Series 7 required within 90 days of hire." }), canadian).verdict, "check");
 });
 
+const withDegree = (degree) => ({ ...canadian, degree });
+const verdict = (j, degree) => checkEligibility(j, withDegree(degree)).verdict;
+
+test("a JD student can take law student roles and isn't hidden by a JD requirement", () => {
+  for (const degree of ["JD", "LLB", "JD/MBA"]) {
+    for (const title of ["Articling Student 2027-2028", "Summer Law Student", "Student-at-Law", "Law Clerk"]) {
+      assert.deepEqual(checkEligibility(job(title, { degrees: ["JD"] }), withDegree(degree)), { verdict: "ok", reasons: [], notes: [] }, `${degree}: ${title}`);
+    }
+    assert.equal(verdict(job("Legal Analyst", { description: "Must hold a J.D. from an accredited school." }), degree), "ok", degree);
+  }
+});
+
+test("a JD requirement hides people without a law degree", () => {
+  const r = verdict(job("Summer Associate", { degrees: ["JD"] }), "Bachelor's");
+  assert.equal(r, "no");
+  assert.deepEqual(checkEligibility(job("Summer Associate", { degrees: ["JD"] }), canadian).reasons, ["Requires a JD"]);
+  assert.equal(verdict(job("Legal Analyst", { description: "A law degree is required." }), "Master's"), "no");
+});
+
+test("a JD student is still hidden from MBA and PhD roles", () => {
+  const r = checkEligibility(job("MBA Intern - Finance & Strategy", { jobType: "Internship" }), withDegree("JD"));
+  assert.equal(r.verdict, "no");
+  assert.deepEqual(r.reasons, ["For MBA students"]);
+  assert.equal(verdict(job("Analyst", { description: "An MBA is required." }), "JD"), "no");
+  assert.equal(verdict(job("Research Scientist", { degrees: ["PhD"] }), "LLB"), "no");
+  assert.equal(verdict(job("Policy Analyst", { description: "A graduate degree is required." }), "JD"), "ok");
+});
+
+test("medical degrees meet medical requirements only", () => {
+  assert.equal(verdict(job("Resident Physician", { degrees: ["MD", "DO"] }), "MD"), "ok");
+  assert.equal(verdict(job("Resident Physician", { degrees: ["MD"] }), "MBBS"), "ok");
+  assert.equal(verdict(job("Clinical Pharmacist", { degrees: ["PharmD"] }), "MD"), "no");
+  assert.deepEqual(checkEligibility(job("Clinical Pharmacist", { degrees: ["PharmD"] }), withDegree("MD")).reasons, ["Requires a PharmD"]);
+});
+
+test("a college diploma passes undergraduate postings and not graduate ones", () => {
+  assert.equal(verdict(job("Analyst", { degrees: ["Bachelor's"] }), "College diploma"), "ok");
+  assert.equal(verdict(job("Analyst", { degrees: ["Associate's", "Bachelor's"] }), "College diploma"), "ok");
+  assert.equal(verdict(job("Analyst", { degrees: ["Master's"] }), "College diploma"), "no");
+  assert.equal(verdict(job("PhD Research Intern"), "College diploma"), "no");
+});
+
+test("a degree the app doesn't know never hides a job", () => {
+  const degree = "Sommelier, level 2";
+  assert.equal(verdict(job("MBA Intern"), degree), "ok");
+  assert.equal(verdict(job("Analyst", { degrees: ["JD"] }), degree), "ok");
+  assert.equal(verdict(job("Analyst", { description: "A PhD is required." }), degree), "ok");
+});
+
+test("old answers keep their old results", () => {
+  for (const degree of ["MBA", "Master's", "PhD"]) {
+    assert.equal(verdict(job("MBA Associate"), degree), "ok", degree);
+    assert.equal(verdict(job("Analyst", { degrees: ["Master's", "PhD"] }), degree), "ok", degree);
+    assert.equal(verdict(job("Analyst", { description: "An MBA is required." }), degree), "ok", degree);
+  }
+  assert.deepEqual(checkEligibility(job("Analyst", { degrees: ["Master's", "PhD"] }), canadian).reasons, ["Requires a Master's or PhD"]);
+  assert.equal(verdict(job("MBA Intern"), null), "ok");
+  assert.equal(verdict(job("Analyst", { degrees: ["Bachelor's", "Master's"] }), "High school"), "ok");
+});
+
+test("a sentence ending in a degree isn't read as requiring it", () => {
+  assert.equal(verdict(job("Analyst", { description: "Nice to have: an MBA. Required: Excel." }), "Bachelor's"), "ok");
+});
+
+test("entry-level postings that ask for a degree in general aren't hidden", () => {
+  for (const description of [
+    "Recent graduate, degree required.",
+    "University graduate (degree required).",
+    "Bachelor's or graduate degree required.",
+    "Post-graduate degree is required.",
+    "Requires an advanced degree or equivalent experience.",
+    "No PhD required.",
+    "no JD required",
+    "Requires JD Edwards experience.",
+    "Must have JD Edwards knowledge.",
+  ]) assert.equal(verdict(job("Analyst", { description }), "Bachelor's"), "ok", description);
+  assert.deepEqual(checkEligibility(job("Legal Analyst", { description: "J.D. required." }), withDegree("Bachelor's")).reasons, ["Requires a JD"]);
+});
+
+test("a person with several degrees is judged on the highest", () => {
+  assert.equal(verdict(job("Associate", { degrees: ["MBA"] }), "MBA candidate, BCom 2022"), "ok");
+  assert.equal(verdict(job("Summer Associate", { degrees: ["JD"] }), "Bachelor of Arts in Law and Society; JD 2027"), "ok");
+  assert.equal(verdict(job("Summer Associate", { degrees: ["JD"] }), "Honours BA, applying to law school"), "no");
+});
+
 test("without any facts set, nothing is ruled out on authorization", () => {
   assert.equal(checkEligibility(job("Analyst", { location: "New York, NY", description: "Must be a U.S. citizen." }), {}).verdict, "ok");
 });
@@ -100,6 +185,20 @@ test("re-checking the sheet hides open jobs you can't take and brings back ones 
   assert.deepEqual(statuses.map((s) => [s.row, s.status]), [[2, "Not Eligible"], [4, "Awaiting Your Approval"]]);
   assert.deepEqual(cells.map((c) => c.row), [2, 4]);
   assert.equal(cells[1].value, "");
+});
+
+test("a bachelor's degree isn't hidden by a posting that also takes a Master's", () => {
+  for (const description of [
+    "Bachelor's or Master's degree is required.",
+    "Bachelor's, Master's, or PhD required.",
+    "Bachelor's degree is required and a Master's degree is required for managers.",
+  ]) assert.equal(verdict(job("Analyst", { description }), "Bachelor's"), "ok", description);
+  assert.equal(verdict(job("Analyst", { description: "Master's degree required." }), "Bachelor's"), "no");
+});
+
+test("a planned degree doesn't open roles that need it", () => {
+  assert.equal(verdict(job("Analyst", { description: "Master's degree required." }), "Bachelor's, planning a Master's"), "no");
+  assert.equal(verdict(job("Analyst", { description: "Master's degree required." }), "Bachelor, Masters 2027"), "ok");
 });
 
 test("a re-check never touches a job you dismissed", () => {

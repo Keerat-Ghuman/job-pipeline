@@ -40,3 +40,51 @@ test("terms start on the first of their month, so the cutoff moves with the date
 test("full-time jobs are never skipped for their term", () => {
   assert.equal(started({ title: "Analyst, Summer 2026 start", jobType: "Full-time" }), false);
 });
+
+test("Canadian student placements count as internships", () => {
+  for (const title of [
+    "Articling Student, ICLC",
+    "Articled Clerk",
+    "Student-at-Law",
+    "Students at Law 2027",
+    "Summer Law Student",
+    "Summer Student",
+    "Law Student",
+    "Law Students (2027)",
+    "Student, Legal",
+    "Student, Law - Toronto",
+    "Legal Student",
+    "Articling Student Program 2027",
+    "Articling Student, Toronto (Program Begins 2027)",
+    "Articling Student - Student Program",
+    "Summer Student Program",
+    "Law Student, Manager's Team",
+    "Summer Students",
+  ]) {
+    assert.equal(jobTypeOf({ title }), "Internship", title);
+  }
+});
+
+test("student-facing staff roles stay full-time", () => {
+  for (const title of [
+    "Student Success Manager",
+    "Student Services Coordinator",
+    "Law Student Services Coordinator",
+    "Legal Student Affairs Manager",
+    "Student Loan Analyst",
+    "Legal Assistant",
+    "Corporate Lawyer",
+    "Law Student Program Coordinator",
+    "Law Students Coordinator",
+    "Summer Student Programs Manager",
+    "Articling Program Director",
+    "Articling Principal",
+    "Student, Legal Operations Manager",
+    "Summer Student Engagement Lead",
+    "Law Student Recruiting Specialist",
+    "Summer Students Coordinator",
+    "Articling Student Programme Manager",
+  ]) {
+    assert.equal(jobTypeOf({ title }), "Full-time", title);
+  }
+});

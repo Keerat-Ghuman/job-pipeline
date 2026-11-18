@@ -7,6 +7,7 @@
 # It stops at the first failure. A version whose folder is missing is skipped.
 #
 #   ./scripts/sync.sh "What changed"
+#   ./scripts/sync.sh --no-publish "What changed"   # stop after hosted
 #
 # Folders default to ../Job-pipeline-hosted and ../job-pipeline-public.
 # Set JOBPIPELINE_HOSTED_DIR or JOBPIPELINE_PUBLIC_DIR to use others.
@@ -15,7 +16,9 @@ set -euo pipefail
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 HOSTED="${JOBPIPELINE_HOSTED_DIR:-$SRC/../Job-pipeline-hosted}"
 PUBLIC="${JOBPIPELINE_PUBLIC_DIR:-$SRC/../job-pipeline-public}"
-MSG="${1:?usage: sync.sh <what changed>}"
+PUBLISH=1
+if [ "${1:-}" = "--no-publish" ]; then PUBLISH=0; shift; fi
+MSG="${1:?usage: sync.sh [--no-publish] <what changed>}"
 
 clean() { [ -z "$(git -C "$1" status --porcelain)" ] || { echo "Stopped: $1 has uncommitted changes. Commit them first."; exit 1; }; }
 
@@ -39,7 +42,9 @@ else
   echo "2/3 Skipped: no hosted folder at $HOSTED"
 fi
 
-if [ -d "$PUBLIC/.git" ]; then
+if [ "$PUBLISH" = 0 ]; then
+  echo "3/3 Skipped publishing (--no-publish)"
+elif [ -d "$PUBLIC/.git" ]; then
   echo "3/3 Publishing..."
   "$SRC/scripts/publish.sh" "$PUBLIC" "$MSG"
 else

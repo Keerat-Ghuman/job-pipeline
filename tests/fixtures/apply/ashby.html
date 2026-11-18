@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Analyst at Example Co (Ashby-style test form)</title></head>
+<body>
+<div id="root">
+  <h1>Analyst</h1><p>Toronto, ON</p>
+  <div class="ashby-application-form-container">
+    <div><label for="autofill-file">Autofill from resume</label><input type="file" id="autofill-file"></div>
+    <div><label for="_systemfield_name">Name *</label><input id="_systemfield_name" name="_systemfield_name" data-key="name" required></div>
+    <div><label for="_systemfield_email">Email *</label><input id="_systemfield_email" name="_systemfield_email" type="email" data-key="email" required></div>
+    <div><label for="_systemfield_resume">Resume *</label><input id="_systemfield_resume" name="_systemfield_resume" type="file" required></div>
+    <div><label for="9a7b6c5d-1234-4e5f-8a9b-0c1d2e3f4a5b">Are you legally authorized to work in Canada? *</label>
+      <select id="9a7b6c5d-1234-4e5f-8a9b-0c1d2e3f4a5b" name="q_auth" data-key="auth" required><option value="">Select...</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+    <fieldset><legend>Will you require visa sponsorship to work in Canada? *</legend>
+      <label><input type="radio" name="q_sponsor" value="yes" required>Yes</label>
+      <label><input type="radio" name="q_sponsor" value="no">No</label></fieldset>
+    <div><label for="1f2e3d4c-5678-4b9a-8c7d-6e5f4a3b2c1d">What draws you to this role?</label>
+      <textarea id="1f2e3d4c-5678-4b9a-8c7d-6e5f4a3b2c1d" name="q_why" data-key="why"></textarea></div>
+    <div><label for="eeo_gender">What gender do you identify as?</label>
+      <select id="eeo_gender" name="eeo_gender" data-key="gender"><option value="">Select...</option><option value="m">Man</option><option value="w">Woman</option><option value="d">I prefer not to say</option></select></div>
+    <div><input type="checkbox" id="privacy" name="privacy" required><label for="privacy">I have read and accept the privacy notice and the processing of my personal data *</label></div>
+    <button type="button" id="submit">Submit Application</button>
+  </div>
+</div>
+<script>
+// A controlled form like React: the page keeps its own state and re-renders
+// it into the inputs. Setting .value directly is undone on the next render;
+// only the native setter plus an input event changes the state.
+var state = {};
+var controls = Array.prototype.slice.call(document.querySelectorAll("[data-key]"));
+controls.forEach(function (el) {
+  var proto = Object.getPrototypeOf(el);
+  var desc = Object.getOwnPropertyDescriptor(proto, "value");
+  var tracker = "";
+  Object.defineProperty(el, "value", {
+    configurable: true,
+    get: function () { return desc.get.call(this); },
+    set: function (v) { tracker = String(v); desc.set.call(this, v); }
+  });
+  var onChange = function () {
+    var now = desc.get.call(el);
+    if (now !== tracker) { tracker = now; state[el.dataset.key] = now; }
+    render();
+  };
+  el.addEventListener("input", onChange);
+  el.addEventListener("change", onChange);
+});
+function render() { controls.forEach(function (el) { el.value = state[el.dataset.key] || ""; }); }
+setInterval(render, 50);
+document.getElementById("submit").addEventListener("click", function () {
+  fetch("/submit", { method: "POST", body: JSON.stringify(state) }).then(function () {
+    document.querySelector(".ashby-application-form-container").innerHTML = "<p>Thank you for applying.</p>";
+  });
+});
+</script>
+</body>
+</html>

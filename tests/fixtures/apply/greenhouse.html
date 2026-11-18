@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Analyst at Example Co (Greenhouse-style test form)</title></head>
+<body>
+<header><h1>Analyst</h1><p>Example Co, Toronto, ON</p>
+  <label for="alerts">Get job alerts</label><input type="email" id="alerts" name="alerts">
+</header>
+<form id="application_form" method="post" action="/submit">
+  <h2>Submit your application</h2>
+  <button type="button" id="autofill">Autofill with MyGreenhouse</button>
+  <div class="field"><label for="first_name">First Name *</label><input type="text" id="first_name" name="job_application[first_name]" required></div>
+  <div class="field"><label for="last_name">Last Name *</label><input type="text" id="last_name" name="job_application[last_name]" required></div>
+  <div class="field"><label for="email">Email *</label><input type="email" id="email" name="job_application[email]" required></div>
+  <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="job_application[phone]"></div>
+  <div class="field"><label for="resume">Resume/CV *</label><input type="file" id="resume" name="job_application[resume]" required></div>
+  <div class="field"><label for="q_linkedin">LinkedIn Profile</label><input type="text" id="q_linkedin" name="job_application[answers][0][text_value]"></div>
+  <div class="field"><label for="q_auth">Are you legally authorized to work in Canada? *</label>
+    <select id="q_auth" name="job_application[answers][1][boolean_value]" required><option value="">Please select</option><option value="1">Yes</option><option value="0">No</option></select></div>
+  <fieldset><legend>Will you now or in the future require sponsorship for employment visa status? *</legend>
+    <label><input type="radio" name="job_application[answers][2][boolean_value]" value="1" required> Yes</label>
+    <label><input type="radio" name="job_application[answers][2][boolean_value]" value="0"> No</label></fieldset>
+  <div class="field"><label for="q_why">Why do you want to work at Example Co?</label><textarea id="q_why" name="job_application[answers][3][text_value]" maxlength="1000"></textarea></div>
+  <h3>Voluntary Self-Identification</h3>
+  <div class="field"><label for="gender">Gender</label>
+    <select id="gender" name="job_application[gender]"><option value="">Please select</option><option value="1">Male</option><option value="2">Female</option><option value="3">Decline To Self Identify</option></select></div>
+  <div class="field"><input type="checkbox" id="consent" name="job_application[data_compliance][gdpr_consent_given]" required><label for="consent">I consent to the processing of my personal data as described in the privacy notice *</label></div>
+  <button type="submit" id="submit_app">Submit Application</button>
+</form>
+</body>
+</html>

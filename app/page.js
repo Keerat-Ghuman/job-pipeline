@@ -18,6 +18,7 @@ import FetchStatus from "./FetchStatus.js";
 import FilterPanel from "./FilterPanel.js";
 import FavouriteStar, { isFavourite } from "./FavouriteStar.js";
 import EligibilityTag from "./EligibilityTag.js";
+import LanguagesSetting from "./LanguagesSetting.js";
 import { statusLabel } from "../lib/board.js";
 
 // Only outcomes get a colour. Everything else is plain text.
@@ -353,6 +354,8 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      <LanguagesSetting kit={kit} onSaved={loadJobs} />
 
       <div className="tabs">
         {TABS.filter((t) => t.key === "all" || t.key === activeTab || counts[t.key]).map((t) => (

@@ -8,6 +8,8 @@ import fs from "fs";
 import path from "path";
 import { PLATFORM } from "./platform.mjs";
 import { fileURLToPath } from "url";
+import { execFileSync } from "child_process";
+import { findClaude, claudeEnv, commandFor } from "../lib/apply/model.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const p = (...parts) => path.join(ROOT, ...parts);
@@ -70,6 +72,40 @@ async function sheetCheck(env, key) {
   return meta.data.properties.title;
 }
 
+function kitWithoutApplicant(text) {
+  try {
+    const { applicant, ...rest } = JSON.parse(text);
+    return JSON.stringify(rest);
+  } catch {
+    return text;
+  }
+}
+
+// Which model form filling will use: Claude Code on your subscription when
+// it's installed and signed in, else your free Gemini key, else none.
+export function formModelRoute(env) {
+  const bin = findClaude({ ...process.env, ...env });
+  let signedIn = false;
+  if (bin) {
+    try {
+      const run = commandFor(bin, ["auth", "status", "--json"]);
+      const out = execFileSync(run.cmd, run.args, { env: claudeEnv(process.env), timeout: 5000, encoding: "utf-8", windowsVerbatimArguments: run.verbatim });
+      signedIn = JSON.parse(out).loggedIn === true;
+    } catch {}
+  }
+  if (signedIn) return { name: "Claude Code (your subscription)", ok: true, fix: "" };
+  if (env?.GEMINI_API_KEY) {
+    return { name: "Gemini (your free key)", ok: true, fix: bin ? "Claude Code is installed but not signed in. Open Claude Code and sign in to use it instead." : "" };
+  }
+  return {
+    name: "none",
+    ok: false,
+    fix: bin
+      ? "Open Claude Code and sign in. Until then only rules fill forms, and open questions are left for you."
+      : "Optional. Install Claude Code and sign in, or add a free Gemini key with npm run setup. Until then only rules fill forms.",
+  };
+}
+
 export function dashboardPort(env = readEnv()) {
   return Number(env?.DASHBOARD_PORT) || 3001;
 }
@@ -113,8 +149,9 @@ export async function runChecks({ offline = false } = {}) {
   }
 
   const kitFile = p("config", "applyKit.json");
+  // The applicant section is optional (form filling falls back to the rest).
   const editMe = fs.existsSync(kitFile)
-    ? (fs.readFileSync(kitFile, "utf-8").match(/EDIT ME/g) || []).length
+    ? (kitWithoutApplicant(fs.readFileSync(kitFile, "utf-8")).match(/EDIT ME/g) || []).length
     : -1;
   add("Apply kit filled in (config/applyKit.json)", editMe === 0,
     editMe < 0 ? `Run ${PLATFORM.installCommand} to create it.` : `Replace the ${editMe} EDIT ME line(s) in config/applyKit.json.`);
@@ -149,6 +186,9 @@ export async function runChecks({ offline = false } = {}) {
 
   add("Gemini key for AI writing", !!env?.GEMINI_API_KEY,
     "Optional and free. Run npm run setup and choose to add a Gemini key.", true);
+
+  const route = formModelRoute(env);
+  add(`Free model for filling application forms: ${route.name}`, route.ok, route.fix, true);
 
   add("Gmail set up for digest emails", !!env?.SMTP_APP_PASSWORD && env.SMTP_APP_PASSWORD !== "your-app-password",
     "Optional. Run npm run setup and choose to set up Gmail.", true);

@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The gate (.claude/hooks/qa-gate.mjs) builds into its own folder so the
+  // dashboard's dev server keeps running from .next.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // On Vercel each API route is bundled on its own. These lines make sure the
   // CV PDFs and the Apply kit file are shipped with the routes that read them.
   experimental: {

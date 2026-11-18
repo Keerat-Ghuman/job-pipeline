@@ -7,6 +7,7 @@
 # gitignored, so they are never part of what gets copied.
 #
 #   ./scripts/publish.sh ~/Projects/job-pipeline-public "What changed"
+#   DRY=1 ./scripts/publish.sh /tmp/scratch "x"   # build and check only: no commit, no push
 #
 # .publish-blocklist (gitignored, one phrase per line) lists personal details
 # that must never be published: your name, phone, email, sheet ID.
@@ -16,7 +17,14 @@ SRC="$(cd "$(dirname "$0")/.." && pwd)"
 DEST="${1:?usage: publish.sh <public clone dir> <message>}"
 MSG="${2:?usage: publish.sh <public clone dir> <message>}"
 
-[ -d "$DEST/.git" ] || { echo "$DEST is not a git clone"; exit 1; }
+if [ -n "${DRY:-}" ]; then
+  # A dry run only builds into a new or empty folder: it empties it first.
+  [ ! -d "$DEST" ] || [ -z "$(ls -A "$DEST")" ] || { echo "DRY needs a new or empty folder, and $DEST has files in it."; exit 1; }
+  mkdir -p "$DEST"
+  [ -d "$DEST/.git" ] || git -C "$DEST" init -q
+else
+  [ -d "$DEST/.git" ] || { echo "$DEST is not a git clone"; exit 1; }
+fi
 [ -z "$(git -C "$SRC" status --porcelain)" ] || { echo "Commit your changes first."; exit 1; }
 
 find "$DEST" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
@@ -35,6 +43,11 @@ if ! "$SRC/scripts/check-fresh.sh" "$DEST"; then
   echo "Stopped: a fresh install of this version fails. Nothing was published."
   git -C "$DEST" checkout -- . && git -C "$DEST" clean -fdq
   exit 1
+fi
+
+if [ -n "${DRY:-}" ]; then
+  echo "Dry run: the checked copy is in $DEST. Nothing was committed or pushed."
+  exit 0
 fi
 
 git -C "$DEST" add -A

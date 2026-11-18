@@ -4,6 +4,8 @@ node_modules/
 
 # next.js and vercel
 .next/
+.next-gate/
+.claude/loop/
 out/
 .vercel/
 
@@ -30,3 +32,4 @@ resumes/*.pdf
 
 # your private app data: resume, versions, postings, contacts
 data/
+

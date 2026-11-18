@@ -5,6 +5,7 @@ import Link from "next/link";
 import s from "../jobs.module.css";
 import Writing from "./Writing.js";
 import Outreach from "./Outreach.js";
+import ApplyForm from "./ApplyForm.js";
 import { api, CopyButton } from "./ui.js";
 import FavouriteStar from "../../FavouriteStar.js";
 import Requirements from "./Requirements.js";
@@ -214,6 +215,7 @@ export default function JobPage({ params }) {
         </div>
       </section>
 
+      <ApplyForm id={id} company={job.Company} />
       <Requirements id={id} eligibility={job.Eligibility} aiAvailable={aiAvailable} />
       <Writing id={id} drafts={drafts} aiAvailable={aiAvailable} />
       <Outreach jobId={id} job={job} initialContacts={contacts} linkedin={linkedin} domain={domain} outreach={outreach} aiAvailable={aiAvailable} />

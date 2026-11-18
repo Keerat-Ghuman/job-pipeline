@@ -67,5 +67,51 @@
     ],
     "certifications": [],
     "maxYearsExperience": 2
+  },
+  "_applicant_help": "Used to fill application forms (Greenhouse, Lever, Ashby). Anything left as EDIT ME falls back to profile and eligibility above, or is left for you. workAuth.authorizedIn: countries where you can work with no sponsorship (empty uses eligibility.workIn). sponsorshipLaterIn: authorized now but will need sponsorship later (OPT style). demographics: decline unless you write your own answer. answers: questions you always answer the same way, worded as the form asks; they beat every rule. graduation: YYYY-MM. willingToRelocate: yes or no.",
+  "applicant": {
+    "name": {
+      "first": "EDIT ME",
+      "last": "EDIT ME",
+      "preferred": ""
+    },
+    "email": "EDIT ME",
+    "phone": "EDIT ME",
+    "location": {
+      "city": "EDIT ME",
+      "region": "EDIT ME",
+      "country": "EDIT ME"
+    },
+    "links": {
+      "linkedin": "EDIT ME",
+      "github": "",
+      "website": ""
+    },
+    "school": {
+      "name": "EDIT ME",
+      "degree": "EDIT ME",
+      "field": "EDIT ME",
+      "graduation": "EDIT ME"
+    },
+    "workAuth": {
+      "authorizedIn": [],
+      "sponsorshipLaterIn": []
+    },
+    "demographics": {
+      "gender": "decline",
+      "race": "decline",
+      "hispanic": "decline",
+      "veteran": "decline",
+      "disability": "decline"
+    },
+    "salaryIfRequired": "Negotiable",
+    "earliestStart": "EDIT ME",
+    "willingToRelocate": "",
+    "answers": [
+      {
+        "question": "Are you at least 18 years old?",
+        "answer": "EDIT ME"
+      }
+    ]
   }
 }

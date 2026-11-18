@@ -98,7 +98,8 @@ Register-ScheduledTask -TaskName "JobPipeline-dashboard" -Force `
 
 Say "Scheduling the job search every $EveryHours hours"
 $trim = "if (Test-Path 'logs\run.log') { Get-Content 'logs\run.log' -Tail 2000 | Set-Content 'logs\run.log.tmp'; Move-Item -Force 'logs\run.log.tmp' 'logs\run.log' }"
-$runCmd = "Set-Location '$Dir'; $trim; & '$nodeExe' --max-old-space-size=512 --env-file=.env.local scripts/run-pipeline.mjs --scheduled *>> 'logs\run.log'"
+$autoStep = ""
+$runCmd = "Set-Location '$Dir'; $trim; & '$nodeExe' --max-old-space-size=512 --env-file=.env.local scripts/run-pipeline.mjs --scheduled *>> 'logs\run.log'$autoStep"
 $runAction = New-ScheduledTaskAction -Execute "powershell.exe" `
   -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command `"$runCmd`""
 $runSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `

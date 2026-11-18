@@ -55,7 +55,21 @@ Dashboard (app/page.js) reads and updates the same sheet.
 4. Click **Mark Applied**. A follow-up reminder is set for 7 days later.
 
 Jobs scoring at or above `AUTO_APPROVE_MIN_SCORE` skip step 2. Only email jobs
-are ever submitted for you; web forms are always submitted by you.
+are submitted for you.
+
+## Filling application forms
+
+On your own computer, a job on Greenhouse, Lever or Ashby can have its form
+filled in a separate Chrome window. The app answers what it can from your
+apply kit, reads every answer back, and sends the form only after you press
+**Submit application** and say yes for that one job. Human checks, sign-ins
+and signatures stay with you.
+
+The design is in
+[docs/form-apply.md](docs/form-apply.md); the code is in `lib/apply/`.
+
+The ideas come from [jev-job-search](https://github.com/qbeka/jev-job-search)
+(MIT, Copyright (c) 2026 Qendrim Beka). No jev code is copied.
 
 ## Project layout
 

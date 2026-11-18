@@ -1,0 +1,38 @@
+{
+  "env": {
+    "NEXT_DIST_DIR": ".next-gate",
+    "DASHBOARD_USER": "qa",
+    "DASHBOARD_PASSWORD": "{random}"
+  },
+  "steps": [
+    {
+      "name": "tests",
+      "run": "npm test"
+    },
+    {
+      "name": "build",
+      "run": "npm run build"
+    },
+    {
+      "name": "security audit",
+      "run": "node ~/Projects/claude-harness/gate/security-audit.mjs"
+    }
+  ],
+  "serve": "npx next start -H 127.0.0.1 -p {port}",
+  "qa": "node scripts/qa-ui.mjs {url}",
+  "local": [
+    ".env.local",
+    "credentials",
+    "config/applyKit.json",
+    "data",
+    "resumes"
+  ],
+  "rules": [
+    "Don't edit scripts/qa-ui.mjs or tests/, skip a test or loosen a pass rule to get through the gate.",
+    "Before ending a turn on visual work, look at the changed screens at 1440px and 375px and run the unslop pass for UI or wording (DESIGN.md, VOICE.md).",
+    "The local build reads the worktree's copy of data/, so it never touches real data. Never approve, send, apply or fetch from the UI.",
+    "Never commit or print .env.local, credentials/, config/applyKit.json, data/, resumes/ or logs/.",
+    "Never push main, run sync.sh or publish. The owner reviews the PR, then syncs main to hosted with ./scripts/sync.sh."
+  ],
+  "tries": 5
+}
