@@ -6,6 +6,7 @@ node_modules/
 .next/
 .next-gate/
 .claude/loop/
+.claude/security-audit/
 out/
 .vercel/
 

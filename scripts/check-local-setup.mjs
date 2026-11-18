@@ -63,7 +63,7 @@ function checkUpstreamSuite() {
       mkdirSync(dirname(target), { recursive: true });
       copyFileSync(join(root, file), target);
     }
-    writeFileSync(join(fixture, "config/profile.json"), git("show", "HEAD:config/profile.json"));
+    writeFileSync(join(fixture, "config/profile.json"), git("show", "b38a9a43df8785e77961d4fba9ba9e245d6fcac5:config/profile.json"));
     symlinkSync(join(root, "node_modules"), join(fixture, "node_modules"), "dir");
     execFileSync(process.execPath, ["--test", "tests/*.test.mjs"], { cwd: fixture, stdio: "inherit" });
   } finally {
