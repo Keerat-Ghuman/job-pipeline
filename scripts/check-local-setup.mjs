@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readEnv } from "./doctor.mjs";
 import { checkListingEligibility } from "../lib/eligibilityRun.js";
@@ -46,29 +45,13 @@ function checkPersonalProfile() {
     [env.AUTO_SEND_EMAILS, env.MAX_EMAILS_PER_RUN, env.AUTO_APPROVE_MIN_SCORE, env.READ_JOB_ALERTS, env.ALLOW_CLEAR],
     ["false", "0", "101", "false", "false"],
   );
-  assert.equal(env.SMTP_APP_PASSWORD, "");
+  assert.equal(env.SMTP_APP_PASSWORD === "", true, "SMTP_APP_PASSWORD must be an empty string.");
   assert.equal(checkListingEligibility({ title: "Software Intern", location: "Seattle, WA" }, kit.eligibility).verdict, "no");
   console.log("Personal profile, private résumé files, and manual-review settings passed.");
 }
 
-// Upstream scoring assertions depend on the original profile values. Run the
-// current tracked source and tests with that fixture, without copying private
-// application data or overwriting the personalized checkout.
 function checkUpstreamSuite() {
-  const fixture = mkdtempSync(join(tmpdir(), "job-pipeline-tests-"));
-  try {
-    const files = git("ls-files", "-z", "--", "app", "config", "lib", "resumes", "scripts", "tests", "package.json").split("\0").filter(Boolean);
-    for (const file of files) {
-      const target = join(fixture, file);
-      mkdirSync(dirname(target), { recursive: true });
-      copyFileSync(join(root, file), target);
-    }
-    writeFileSync(join(fixture, "config/profile.json"), git("show", "b38a9a43df8785e77961d4fba9ba9e245d6fcac5:config/profile.json"));
-    symlinkSync(join(root, "node_modules"), join(fixture, "node_modules"), "dir");
-    execFileSync(process.execPath, ["--test", "tests/*.test.mjs"], { cwd: fixture, stdio: "inherit" });
-  } finally {
-    rmSync(fixture, { recursive: true, force: true });
-  }
+  execFileSync(process.execPath, [join(root, "scripts/run-tests.mjs")], { cwd: root, stdio: "inherit" });
 }
 
 checkPersonalProfile();
