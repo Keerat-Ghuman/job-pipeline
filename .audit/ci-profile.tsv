@@ -1,0 +1,5 @@
+Check	Observed result
+Fixture provenance	The Git blob for scripts/fixtures/upstream-profile.json matches b38a9a4:config/profile.json (32d59ef01311248d3dfac8279e34d09c9ceb5a51).
+Git-free npm test on macOS, Node 26.10.0	316 passed, 0 failed, 0 cancelled, 0 skipped. The outer synthetic profile remained byte-identical. The synthetic SMTP marker was absent from stdout and stderr.
+Synthetic test discovery on macOS	The runner selected two top-level test files with spaces in their names in sorted order. It excluded a nested test, a directory with the test suffix and a file with another extension. Empty discovery exited 1.
+Synthetic setup diagnostic (--profile-only)	An empty SMTP password exited 0. A nonempty password and an absent setting each exited 1 with the fixed diagnostic. No output contained the synthetic password.
