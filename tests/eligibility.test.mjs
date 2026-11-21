@@ -64,6 +64,28 @@ test("strict US filtering requires an offer in the job description", () => {
   }
 });
 
+test("strict US filtering recognizes an explicit offer in a visa sponsorship bullet", () => {
+  const offer = " - Visa sponsorship: we sponsor visas (H1B, TN, etc.) for candidates who are a good fit";
+  for (const [description, verdict] of [
+    [`Benefits\n${offer}.\n - Paid time off`, "ok"],
+    [offer.replace("we sponsor", "we have sponsored"), "no"],
+    [offer.replace("we sponsor", "we do not sponsor"), "no"],
+    [`${offer} in the UK only.`, "no"],
+    [`${offer}; only after conversion to full-time.`, "no"],
+    [`${offer}.\n  only after conversion to full-time.`, "no"],
+    [`${offer}.\n  for positions in Canada only.`, "no"],
+    [`${offer}.\n - Sponsorship is limited to permanent roles.`, "no"],
+    [`${offer}.\n - Sponsorship is restricted to permanent roles.`, "no"],
+    [`${offer}?`, "no"],
+    [`${offer}.\nApplicants must already be authorized to work in the US.`, "no"],
+  ]) {
+    const result = checkListingEligibility(job("Software Engineer Intern", {
+      location: "San Francisco", description,
+    }), strictSponsorship);
+    assert.equal(result.verdict, verdict, description);
+  }
+});
+
 test("strict US filtering rejects unknown, negative, conditional and irrelevant statements", () => {
   for (const description of [
     "",

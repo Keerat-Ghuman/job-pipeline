@@ -19,6 +19,7 @@
   ],
   "_lever_howto": "URL: jobs.lever.co/{slug}. API: https://api.lever.co/v0/postings/{slug}?mode=json",
   "ashby": [
+    "agave",
     "openai",
     "plaid",
     "ramp",
